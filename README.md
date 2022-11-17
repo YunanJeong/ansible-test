@@ -13,7 +13,8 @@
 - 파이썬 패키지 취급이므로, pyenv 등 격리환경에 종속될 수 있다.
 
 ## Ubuntu
-    $ apt install ansible
+    $ sudo apt update
+    $ sudo apt install ansible
 - root 환경에 설치되므로 ansible 커맨드에 항상 `sudo` 필요
 
 ## CentOS
