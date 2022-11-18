@@ -86,7 +86,7 @@
     - `etc/ansible/hosts`의 모든 node에 핑테스트
     - ssh 설정이 잘못되면 fail
     - ssh, icmp 네트워크 차단되어있으면 fail
-    - Managed Node의 `~/.ssh/authorized_keys` 권한이 root면 fail
+    - Managed Node의 `~/.ssh/authorized_keys` 파일권한이 root면 denied
 
 
 ## SSH 설정 관련 사항
