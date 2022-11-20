@@ -68,12 +68,13 @@
         - 키 생성 시부터 위와 같이  권한을 고려한 작업 필요
 
     ```
-    - EC2로 테스트시 권장 권한 (경우에 따라 다를 수 있음)
+    - EC2로 초기 셋업 및 테스트시 권장 권한 (경우에 따라 다를 수 있음)
         - Control Node(Ansible)에서는 모든 작업을 root 권한 사용
-            - 설치환경에 따라 ansible 커맨드는 안되고, "sudo ansible" 해야하는 경우가 있따.
+            - 설치환경에 따라 ansible 커맨드는 안되고, "sudo ansible" 해야하는 경우가 있다.
         - Managed Node에서는 모든 작업을 user 권한 사용
-            - 어차피 ssh 접속은 user계정으로 해야하고, root권한 필요시 sudo 커맨드를 비밀번호없이 사용할 수 있으니까.
+            - 어차피 인스턴스 생성시 만든 user계정으로 ssh 접속하고, Managed Node내 root권한 필요시 sudo 커맨드쓰면 되니까.
     ```
+    - [Ansible의 user 모듈로 계정 추가](https://jojoldu.tistory.com/433?category=777282)
 3. Control Node의 `/root/.ssh/` 또는 `~/.ssh/` 경로에서 키 파일 생성 확인
     - id_rsa.pub: public key, 다른 경로로 옮겨도 됨
     - id_rsa: private key. ssh 연결시 해당 경로에 있어야 함
