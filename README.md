@@ -38,11 +38,14 @@
 - Playbook
 
 
-# Ansible 사전 준비 작업
-- 다수 블로그에서 초기 가상환경 구성 및 ssh 연결 부분을 간략하게 언급하고 넘어간다.
+# Ansible 시작할 때 사전 준비 작업
+- 다수 블로그에서 인프라 환경 구성 및 ssh 연결 부분을 간략히 언급하고 넘어간다.
 - 개인 구축 환경의 소소한 차이로 인해, 초기 셋업 시간이 많이 소요될 수 있다.
-- 다음 정리내용을 읽어보고, 다른 좋은 Ansible 튜토리얼들을 진행하도록 하자.
-    - [EC2, Ansible, SSH, 내가 필요한 사전작업내용 정리](https://github.com/YunanJeong/ansible-test/blob/main/0_ready.md)
+- 다음 정리내용을 먼저 읽고, 다른 좋은 Ansible 튜토리얼들을 진행하도록 하자.
+    - [내가 필요한 사전작업내용 정리](https://github.com/YunanJeong/ansible-test/blob/main/0_ready.md)
+    - Ansible 테스트시 내가 사용했던 환경
+        - 로컬 wsl (Control) -> EC2 ubuntu 여러대 (Managed)
+        - 또는, EC2 ubuntu 1대 (Control) -> EC2 ubuntu 여러대 (Managed)
 
 # 참고 튜토리얼
 - [앤서블 시작하기(개념 등 설명 훌륭, 전반적으로 튜토리얼시 좋음)](https://wikidocs.net/130113)
