@@ -43,16 +43,6 @@
 - Ansible 관련 블로그에서 초기설정시 핑테스트 예제를 많이 보여주는데, icmp 허용안하면 Fail 된다.
 - 참고: [AWS EC2로 앤서블 테스트(초기 설정 상세함)](https://jojoldu.tistory.com/432)
 
-## root, user 권한 관련사항
-- EC2로 작업시 일반적으로 다음 진행하면 된다.
-    - Control Node(Ansible 설치 및 실행 노드)에서는 모든 작업을 root 권한으로 처리 (`sudo`)
-    - Managed Node에서는 모든 작업을 user 권한으로 처리
-- 항상 이런 건 아닌데,
-    - Ansible은 설정파일이 루트경로 `/etc/ansible`에 있다보니 root 권한으로 작업해야 편한 경우가 많다.
-    - Managed node 쪽은 반드시 user 권한으로 작업한다.
-        - EC2에 ssh 접속시 보통 일반 user로 접근하기 때문
-        - authorized_keys 파일도 일반권한으로 되어있어야 함
-
 ## SSH 설정
 0. Control Node로 쓸 호스트에 Ansible 설치
     - `$ ansible localhost -m ping`(ansible로 로컬에 핑 테스트)로 정상설치 확인
@@ -67,37 +57,41 @@
 
 2. Control Node에서 `$ ssh-keygen -t rsa`로 private key, public key 파일 생성
     - `-t rsa`: 암호화 방식 rsa 선택을 의미
-    - `Enter file in which to save the key (...): `라는 문구가 나오는데, **경로 포함 파일명**을 입력할 수 있다.
-        - 디폴트 파일명은 rsa, 디폴트 경로는 위 괄호안에 나옴
-    - `Enter passphrase: `: key의 비밀번호를 추가하고 싶을 때 사용. 보통 그냥 넘어감.
-
+    - 다음과 같이 추가 입력 요구가 있지만, 일반 사용시 그냥 엔터로 모두 넘어가도록 한다.
+        - `Enter file in which to save the key (): `: 경로 포함 파일명 입력자리
+            - 넘어가면 디폴트 경로, 파일명(id_rsa)으로 생성
+            - **디폴트 파일명이 아닌경우 ansible 연결테스트 실패 이슈 있음**
+        - `Enter passphrase: `: key의 비밀번호를 추가 원할 시 사용
     - root, user 권한 관련
-        - `$ sudo ssh-keygen -t rsa`
-            - 디폴트 키 생성 경로: `/root/.ssh/` (`$ sudo ansible` 사용시 참조 경로)
-        - `$ ssh-keygen -t rsa`
-            - 디폴트 키 생성 경로: `~/.ssh/` (`$ ansible` 사용시 참조 경로)
-        
-    ```
-    - EC2로 작업시 일반적으로 다음 진행하면 된다.
-        - Control Node(Ansible 설치 및 실행 노드)에서는 모든 작업을 root 권한으로 처리 (`sudo`)
-        - Managed Node에서는 모든 작업을 user 권한으로 처리
-    ```
+        - `$sudo ssh-keygen -t rsa`의 디폴트 경로(`/root/.ssh/`)는 `$sudo ansible`에서 참조 
+        - `$ssh-keygen -t rsa`의 디폴트 경로(`~/.ssh/`)는 `$ansible`에서 참조 
+        - 키 생성 시부터 위와 같이  권한을 고려한 작업 필요
 
-3. public key(pub 파일)의 내용 "텍스트 전체"를 복사하여, Managed Node의 `~/.ssh/authorized_keys`에 추가
-    - `/root/.ssh/authorized_keys` 아니다.
+    ```
+    - EC2로 테스트시 권장 권한 (경우에 따라 다를 수 있음)
+        - Control Node(Ansible)에서는 모든 작업을 root 권한 사용
+            - 설치환경에 따라 ansible 커맨드는 안되고, "sudo ansible" 해야하는 경우가 있따.
+        - Managed Node에서는 모든 작업을 user 권한 사용
+            - 어차피 ssh 접속은 user계정으로 해야하고, root권한 필요시 sudo 커맨드를 비밀번호없이 사용할 수 있으니까.
+    ```
+3. Control Node의 `/root/.ssh/` 또는 `~/.ssh/` 경로에서 키 파일 생성 확인
+    - id_rsa.pub: public key, 다른 경로로 옮겨도 됨
+    - id_rsa: private key. ssh 연결시 해당 경로에 있어야 함
+
+4. public key의 내용 "텍스트 전체"를 복사하여, Managed Node의 `~/.ssh/authorized_keys`에 추가
+    - 혹시 차단 풀어서 root 계정 접속할 경우, `/root/.ssh/authorized_keys`
     - authorized_key 기존 내용의 "다음줄"에 입력하면 된다.
     - 다음과 같이 redirect 하면 편하다.
     ```
     $ echo {...pub 내용...} >> ~/.ssh/authorized_keys
     ```
-4. Control Node에서 `$ sudo ansible all -m ping`으로 정상동작 확인
+5. Control Node에서 `$ ansible all -m ping`으로 정상동작 확인
     - `etc/ansible/hosts`의 모든 node에 핑테스트
     - ssh 설정이 잘못되면 fail
     - ssh, icmp 네트워크 차단되어있으면 fail
     - Managed Node의 `~/.ssh/authorized_keys` 파일권한이 root면 denied
 
-
-## SSH 설정 관련 사항
+## SSH 설정 참고 사항
 - Ansible은 ssh로 다른 호스트들을 관리한다. ssh 사전 설정이 필요한데, Ansible 관련 글들은 이 부분을 너무 간략히 설명한다.
 - ssh 설정시 헷갈리는 부분 or 알면 좋은 내용을 여기 정리한다.
 - 참고: [ssh 상세설명](https://danthetech.netlify.app/Backend/configure-ssh-key-based-authentication-on-a-linux-server)
