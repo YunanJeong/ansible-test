@@ -29,10 +29,11 @@
 - Managed Node
     - 관리 대상 호스트
 - Inventory (hosts)
-    - Control Node의 `/etc/ansible/hosts` 파일
-    - hosts 파일에 Managed Node들의 정보를 기술해야 함(public ip 및 분류 등)
-    - 설치 후 디폴트 파일 및 경로가 자동생성되지 않으면 직접 생성 필요
-    - 이후 ansible실행시 해당 파일 인식은 자동
+    - Managed Node의 목록 및 정보를 기술한 파일 (각각 IP, 변수, 호스트 정보 등)
+    - Control Node의 `/etc/ansible/hosts` 파일을 생성하여 Managed Node들의 정보를 기술할 수 있다. 
+        - `/etc/ansible/`은 Ansible의 글로벌 작업 경로이고, ansible 사용시 자동 참조
+    - `$ ansible -i {file}`: 별도 인벤토리 파일을 참조할 수 있다. `/etc/ansible/hosts` 보다 우선시된다.
+        - file자리에는 yml, ini 등을 쓸 수 있다.
 - Module
 - Task
 - Playbook
@@ -46,6 +47,7 @@
 ## SSH 설정
 0. Control Node로 쓸 호스트에 Ansible 설치
     - `$ ansible localhost -m ping`(ansible로 로컬에 핑 테스트)로 정상설치 확인
+        - 이는 'ping' 모듈을 가져와 쓴 것이고, 인자가 localhost다.
 1. Control Node에서 `/etc/ansible/hosts` 파일 생성
 ```
 # /etc/ansible/hosts
@@ -87,10 +89,23 @@
     $ echo {...pub 내용...} >> ~/.ssh/authorized_keys
     ```
 5. Control Node에서 `$ ansible all -m ping`으로 정상동작 확인
-    - `etc/ansible/hosts`의 모든 node에 핑테스트
+    - `/etc/ansible/hosts`의 모든 node에 핑테스트
     - ssh 설정이 잘못되면 fail
     - ssh, icmp 네트워크 차단되어있으면 fail
     - Managed Node의 `~/.ssh/authorized_keys` 파일권한이 root면 denied
+
+6. 별도 인벤토리 파일 사용해보기
+    - 위는 글로벌 작업경로(`/etc/ansible/`)를 사용한 예제이다.
+    - ansible 실제 사용시에는, 편의를 위해 별도 인벤토리 파일을 사용한다.
+    - 아래처럼 파일생성 후 `$ ansible myserver -i ~/server.yml -m ping`으로 동일한 핑테스트 가능
+    ```
+    # ~/server.yml
+    [myserver]    
+    192.168.0.2
+    192.168.0.3
+    ```
+    
+    
 
 ## SSH 설정 참고 사항
 - Ansible은 ssh로 다른 호스트들을 관리한다. ssh 사전 설정이 필요한데, Ansible 관련 글들은 이 부분을 너무 간략히 설명한다.
@@ -113,5 +128,7 @@
     1. ssh접속용 비대칭키를 생성하고,
     2. private key 파일을 Control Node(클라이언트)에 배치
     3. public key 파일을 Managed Node(서버)에 배치
+
+## 모듈 사용
 
 
