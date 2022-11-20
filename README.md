@@ -12,7 +12,6 @@
 ## Ubuntu
     $ sudo apt update
     $ sudo apt install ansible
-- root 환경에 설치되므로 ansible 커맨드에 `sudo` 필요 가능성
 
 ## CentOS
     $ yum install -y ansible
@@ -45,18 +44,18 @@
 - 참고: [AWS EC2로 앤서블 테스트(초기 설정 상세함)](https://jojoldu.tistory.com/432)
 
 ## root, user 권한 관련사항
-- 블로그들을 보면, 계정권한에 대해 자세히 설명이 없는데, 다음과 같이 진행하면 된다.
+- EC2로 작업시 일반적으로 다음 진행하면 된다.
     - Control Node(Ansible 설치 및 실행 노드)에서는 모든 작업을 root 권한으로 처리 (`sudo`)
     - Managed Node에서는 모든 작업을 user 권한으로 처리
 - 항상 이런 건 아닌데,
     - Ansible은 설정파일이 루트경로 `/etc/ansible`에 있다보니 root 권한으로 작업해야 편한 경우가 많다.
     - Managed node 쪽은 반드시 user 권한으로 작업한다.
-        - Control Node가 Managed Node의 일반 user로 접근하기 때문
+        - EC2에 ssh 접속시 보통 일반 user로 접근하기 때문
         - authorized_keys 파일도 일반권한으로 되어있어야 함
 
 ## SSH 설정
 0. Control Node로 쓸 호스트에 Ansible 설치
-    - `$ sudo ansible localhost -m ping`(ansible로 로컬에 핑 테스트)로 정상설치 확인
+    - `$ ansible localhost -m ping`(ansible로 로컬에 핑 테스트)로 정상설치 확인
 1. Control Node에서 `/etc/ansible/hosts` 파일 생성
 ```
 # /etc/ansible/hosts
@@ -66,14 +65,23 @@
 192.168.0.3
 ```
 
-2. Control Node에서 `$ sudo ssh-keygen -t rsa` (root 권한으로 해줘야 나중에 편하다)
-    - private key, public key 각각 파일 생성됨
+2. Control Node에서 `$ ssh-keygen -t rsa`로 private key, public key 파일 생성
     - `-t rsa`: 암호화 방식 rsa 선택을 의미
-    - `Enter file in which to save the key (...): `라는 문구가 나오는데,
-        - 파일명 포함 filepath 입력자리다. `/root/.ssh/ansible-rsa` 정도로 써주자.
-        - 디폴트 파일명은 rsa
-        - 디폴트 경로는 위 괄호안에 나옴 (root면 `/root/.ssh/`, user면 `~/.ssh/`)
+    - `Enter file in which to save the key (...): `라는 문구가 나오는데, **경로 포함 파일명**을 입력할 수 있다.
+        - 디폴트 파일명은 rsa, 디폴트 경로는 위 괄호안에 나옴
     - `Enter passphrase: `: key의 비밀번호를 추가하고 싶을 때 사용. 보통 그냥 넘어감.
+
+    - root, user 권한 관련
+        - `$ sudo ssh-keygen -t rsa`
+            - 디폴트 키 생성 경로: `/root/.ssh/` (`$ sudo ansible` 사용시 참조 경로)
+        - `$ ssh-keygen -t rsa`
+            - 디폴트 키 생성 경로: `~/.ssh/` (`$ ansible` 사용시 참조 경로)
+        
+    ```
+    - EC2로 작업시 일반적으로 다음 진행하면 된다.
+        - Control Node(Ansible 설치 및 실행 노드)에서는 모든 작업을 root 권한으로 처리 (`sudo`)
+        - Managed Node에서는 모든 작업을 user 권한으로 처리
+    ```
 
 3. public key(pub 파일)의 내용 "텍스트 전체"를 복사하여, Managed Node의 `~/.ssh/authorized_keys`에 추가
     - `/root/.ssh/authorized_keys` 아니다.
