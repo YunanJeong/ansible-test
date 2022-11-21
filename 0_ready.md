@@ -28,7 +28,8 @@
         - `$sudo ssh-keygen -t rsa`의 디폴트 경로(`/root/.ssh/`)는 `$sudo ansible`에서 참조
         - `$ssh-keygen -t rsa`의 디폴트 경로(`~/.ssh/`)는 `$ansible`에서 참조
         - 키 생성 시부터 위와 같이  권한을 고려한 작업 필요
-
+        - 가급적 모든 작업을 user 권한으로 진행하는 것이 이슈가 적다.
+            - apt로 설치 후 유저 권한 ansible이 안되면, pip로 설치해보자.
     ```
     - EC2로 초기 셋업 및 테스트시 권장 권한 (경우에 따라 다를 수 있음)
         - Control Node(Ansible)에서는 root 또는 user 권한 중 하나만 골라 모든 관련 작업 처리
