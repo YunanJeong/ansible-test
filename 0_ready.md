@@ -25,14 +25,13 @@
             - **디폴트 파일명이 아닌경우 ansible 연결테스트 실패 이슈 있음**
         - `Enter passphrase: `: key의 비밀번호를 추가 원할 시 사용
     - root, user 권한 관련
-        - `$sudo ssh-keygen -t rsa`의 디폴트 경로(`/root/.ssh/`)는 `$sudo ansible`에서 참조 
-        - `$ssh-keygen -t rsa`의 디폴트 경로(`~/.ssh/`)는 `$ansible`에서 참조 
+        - `$sudo ssh-keygen -t rsa`의 디폴트 경로(`/root/.ssh/`)는 `$sudo ansible`에서 참조
+        - `$ssh-keygen -t rsa`의 디폴트 경로(`~/.ssh/`)는 `$ansible`에서 참조
         - 키 생성 시부터 위와 같이  권한을 고려한 작업 필요
 
     ```
     - EC2로 초기 셋업 및 테스트시 권장 권한 (경우에 따라 다를 수 있음)
-        - Control Node(Ansible)에서는 모든 작업을 root 권한 사용
-            - 설치환경에 따라 ansible 커맨드는 안되고, "sudo ansible" 해야하는 경우가 있다.
+        - Control Node(Ansible)에서는 root 또는 user 권한 중 하나만 골라 모든 관련 작업 처리
         - Managed Node에서는 모든 작업을 user 권한 사용
             - 어차피 인스턴스 생성시 만든 user계정으로 ssh 접속하고, Managed Node내 root권한 필요시 sudo 커맨드쓰면 되니까.
     ```
@@ -60,12 +59,12 @@
     - 아래처럼 파일생성 후 `$ ansible myserver -i ~/server.yml -m ping`으로 동일한 핑테스트 가능
     ```
     # ~/server.yml
-    [myserver]    
+    [myserver]
     192.168.0.2
     192.168.0.3
     ```
-    
-    
+
+
 ---
 ## SSH 설정 참고 사항
 - Ansible은 ssh로 다른 호스트들을 관리한다. ssh 사전 설정이 필요한데, Ansible 관련 글들은 이 부분을 너무 간략히 설명한다.
